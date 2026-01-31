@@ -87,6 +87,14 @@ impl FileBlame {
         line_blame
     }
 
+    /// Returns a sorted list of all line numbers that have blame information
+    pub fn line_numbers(&self) -> Vec<u32> {
+        let blame = self.blame.lock();
+        let mut lines: Vec<u32> = blame.keys().copied().collect();
+        lines.sort_unstable();
+        lines
+    }
+
     /// Compute blame for this file (expensive)
     pub fn try_new(file: PathBuf) -> Result<Self> {
         let thread_safe_repo =
@@ -147,6 +155,33 @@ pub struct LineBlame {
 }
 
 impl LineBlame {
+    /// Returns the short commit hash
+    pub fn commit_hash(&self) -> Option<&str> {
+        self.commit_hash.as_deref()
+    }
+
+    /// Returns the author name
+    pub fn author_name(&self) -> Option<&str> {
+        self.author_name.as_deref()
+    }
+
+    /// Returns the commit date
+    pub fn commit_date(&self) -> Option<&str> {
+        self.commit_date.as_deref()
+    }
+
+    /// Returns the commit title (first line of commit message)
+    pub fn commit_title(&self) -> Option<&str> {
+        self.commit_title.as_deref()
+    }
+
+    /// Returns the relative time ago string
+    pub fn time_ago(&mut self) -> Option<String> {
+        self.time_stamp.map(|(utc_seconds, timezone_offset)| {
+            helix_stdx::time::format_relative_time(utc_seconds, timezone_offset)
+        })
+    }
+
     /// # Returns
     ///
     /// None => Invalid variable

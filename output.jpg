@@ -1,0 +1,23 @@
+HTTP/2 302 
+date: Wed, 06 Aug 2025 19:35:06 GMT
+content-type: text/html; charset=utf-8
+location: /candidato/candidato/primeira-visita
+x-frame-options: SAMEORIGIN
+vary: Cookie
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+x-xss-protection: 1; mode=block
+referrer-policy: same-origin
+referrer-policy: strict-origin
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+permissions-policy: geolocation=(),midi=(),sync-xhr=(),microphone=(*),camera=(*),magnetometer=(),gyroscope=(),fullscreen=(self),payment=()
+cf-cache-status: HIT
+age: 400
+expires: Wed, 06 Aug 2025 23:35:06 GMT
+cache-control: public, max-age=14400
+server-timing: cfCacheStatus;desc="HIT"
+server-timing: cfOrigin;dur=0,cfEdge;dur=35
+server: cloudflare
+cf-ray: 96b0f9b6cc02ef19-LHR
+alt-svc: h3=":443"; ma=86400
+

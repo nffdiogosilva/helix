@@ -616,6 +616,7 @@ impl MappableCommand {
         goto_next_tabstop, "Goto next snippet placeholder",
         goto_prev_tabstop, "Goto next snippet placeholder",
         blame_line, "Show blame for the current line",
+        blame_picker, "Open blame picker for all lines",
         rotate_selections_first, "Make the first selection your primary one",
         rotate_selections_last, "Make the last selection your primary one",
     );
@@ -3579,6 +3580,95 @@ pub(crate) fn blame_line_impl(editor: &mut Editor, doc_id: DocumentId, cursor_li
 fn blame_line(cx: &mut Context) {
     let (view, doc) = current_ref!(cx.editor);
     blame_line_impl(cx.editor, doc.id(), doc.cursor_line(view.id) as u32);
+}
+
+fn blame_picker(cx: &mut Context) {
+    struct BlameMeta {
+        line: u32,
+        commit: String,
+        author: String,
+        date: String,
+        title: String,
+        text: String,
+    }
+
+    let (view, doc) = current_ref!(cx.editor);
+    let doc_id = doc.id();
+    let text = doc.text().clone();
+    let current_line = doc.cursor_line(view.id) as u32;
+
+    let file_blame = match &doc.file_blame {
+        Some(Ok(blame)) => blame,
+        Some(Err(err)) => {
+            cx.editor.set_error(format!("Blame error: {}", err));
+            return;
+        }
+        None => {
+            cx.editor.set_status("Blame not ready yet. Try again in a moment.");
+            return;
+        }
+    };
+
+    let line_count = text.len_lines();
+    let items: Vec<BlameMeta> = (0..line_count as u32)
+        .map(|line| {
+            let mut line_blame = file_blame.blame_for_line(line, 0, 0);
+            let line_text = text
+                .get_line(line as usize)
+                .map(|l| l.to_string())
+                .unwrap_or_default()
+                .trim_end()
+                .chars()
+                .take(50)
+                .collect::<String>();
+
+            BlameMeta {
+                line: line + 1,
+                commit: line_blame.commit_hash().unwrap_or("-").to_string(),
+                author: line_blame.author_name().unwrap_or("-").to_string(),
+                date: line_blame.time_ago().unwrap_or_else(|| "-".to_string()),
+                title: line_blame
+                    .commit_title()
+                    .unwrap_or("-")
+                    .chars()
+                    .take(40)
+                    .collect(),
+                text: line_text,
+            }
+        })
+        .collect();
+
+    let columns = [
+        PickerColumn::new("line", |meta: &BlameMeta, _| format!("{:>5}", meta.line).into()),
+        PickerColumn::new("commit", |meta: &BlameMeta, _| meta.commit.as_str().into()),
+        PickerColumn::new("author", |meta: &BlameMeta, _| meta.author.as_str().into()),
+        PickerColumn::new("date", |meta: &BlameMeta, _| meta.date.as_str().into()),
+        PickerColumn::new("title", |meta: &BlameMeta, _| meta.title.as_str().into()),
+        PickerColumn::new("text", |meta: &BlameMeta, _| meta.text.as_str().into()),
+    ];
+
+    let initial_cursor = current_line.saturating_sub(1) as usize;
+
+    let picker = Picker::new(columns, 4, items, (), move |cx, meta, action| {
+        let line = meta.line.saturating_sub(1) as usize;
+        let doc = doc_mut!(cx.editor, &doc_id);
+        let text = doc.text().slice(..);
+        let pos = text.line_to_char(line.min(text.len_lines().saturating_sub(1)));
+        let view_id = view!(cx.editor).id;
+        doc.set_selection(view_id, Selection::point(pos));
+        if let Action::Replace = action {
+            let scrolloff = cx.editor.config().scrolloff;
+            let (view, doc) = current!(cx.editor);
+            view.ensure_cursor_in_view_center(doc, scrolloff);
+        }
+    })
+    .with_initial_cursor(initial_cursor.min(line_count.saturating_sub(1)) as u32)
+    .with_preview(move |_editor, meta| {
+        let line = meta.line.saturating_sub(1) as usize;
+        Some((doc_id.into(), Some((line, line))))
+    });
+
+    cx.push_layer(Box::new(overlaid(picker)));
 }
 
 // `A` inserts at the end of each line with a selection.
