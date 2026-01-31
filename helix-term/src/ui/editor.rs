@@ -91,6 +91,13 @@ impl EditorView {
         let config = editor.config();
         let loader = editor.syn_loader.load();
 
+        // Apply inactive background for unfocused views
+        if !is_focused {
+            if let Some(inactive_style) = theme.try_get("ui.background.inactive") {
+                surface.set_style(area, inactive_style);
+            }
+        }
+
         let view_offset = doc.view_offset(view.id);
 
         let text_annotations = view.text_annotations(doc, Some(theme));
@@ -209,6 +216,7 @@ impl EditorView {
             overlays,
             theme,
             decorations,
+            is_focused,
         );
 
         // if we're not at the edge of the screen, draw a right border
