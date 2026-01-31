@@ -539,6 +539,10 @@ impl MappableCommand {
         jump_view_left, "Jump to left split",
         jump_view_up, "Jump to split above",
         jump_view_down, "Jump to split below",
+        jump_view_left_or_tmux, "Jump to left split or tmux pane",
+        jump_view_right_or_tmux, "Jump to right split or tmux pane",
+        jump_view_up_or_tmux, "Jump to split above or tmux pane",
+        jump_view_down_or_tmux, "Jump to split below or tmux pane",
         swap_view_right, "Swap with right split",
         swap_view_left, "Swap with left split",
         swap_view_up, "Swap with split above",
@@ -5882,19 +5886,57 @@ fn rotate_view_reverse(cx: &mut Context) {
 }
 
 fn jump_view_right(cx: &mut Context) {
-    cx.editor.focus_direction(tree::Direction::Right)
+    cx.editor.focus_direction(tree::Direction::Right);
 }
 
 fn jump_view_left(cx: &mut Context) {
-    cx.editor.focus_direction(tree::Direction::Left)
+    cx.editor.focus_direction(tree::Direction::Left);
 }
 
 fn jump_view_up(cx: &mut Context) {
-    cx.editor.focus_direction(tree::Direction::Up)
+    cx.editor.focus_direction(tree::Direction::Up);
 }
 
 fn jump_view_down(cx: &mut Context) {
-    cx.editor.focus_direction(tree::Direction::Down)
+    cx.editor.focus_direction(tree::Direction::Down);
+}
+
+/// Helper to run tmux select-pane command
+fn tmux_select_pane(direction: &str) {
+    let flag = match direction {
+        "left" => "-L",
+        "right" => "-R",
+        "up" => "-U",
+        "down" => "-D",
+        _ => return,
+    };
+    let _ = std::process::Command::new("tmux")
+        .args(["select-pane", flag])
+        .spawn();
+}
+
+fn jump_view_left_or_tmux(cx: &mut Context) {
+    if !cx.editor.focus_direction(tree::Direction::Left) {
+        tmux_select_pane("left");
+    }
+}
+
+fn jump_view_right_or_tmux(cx: &mut Context) {
+    if !cx.editor.focus_direction(tree::Direction::Right) {
+        tmux_select_pane("right");
+    }
+}
+
+fn jump_view_up_or_tmux(cx: &mut Context) {
+    if !cx.editor.focus_direction(tree::Direction::Up) {
+        tmux_select_pane("up");
+    }
+}
+
+fn jump_view_down_or_tmux(cx: &mut Context) {
+    if !cx.editor.focus_direction(tree::Direction::Down) {
+        tmux_select_pane("down");
+    }
 }
 
 fn swap_view_right(cx: &mut Context) {
