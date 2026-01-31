@@ -38,6 +38,7 @@ pub fn render_document(
     overlay_highlights: Vec<syntax::OverlayHighlights>,
     theme: &Theme,
     decorations: DecorationManager,
+    is_focused: bool,
 ) {
     let mut renderer = TextRenderer::new(
         surface,
@@ -45,6 +46,7 @@ pub fn render_document(
         theme,
         Position::new(offset.vertical_offset, offset.horizontal_offset),
         viewport,
+        is_focused,
     );
     render_text(
         &mut renderer,
@@ -204,6 +206,7 @@ impl<'a> TextRenderer<'a> {
         theme: &Theme,
         offset: Position,
         viewport: Rect,
+        is_focused: bool,
     ) -> TextRenderer<'a> {
         let editor_config = doc.config.load();
         let WhitespaceConfig {
@@ -242,7 +245,13 @@ impl<'a> TextRenderer<'a> {
             " ".to_owned()
         };
 
-        let text_style = theme.get("ui.text");
+        let text_style = if is_focused {
+            theme.get("ui.text")
+        } else {
+            theme
+                .try_get("ui.text.inactive")
+                .unwrap_or_else(|| theme.get("ui.text"))
+        };
 
         let indent_width = doc.indent_style.indent_width(tab_width) as u16;
 
