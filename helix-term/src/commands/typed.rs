@@ -376,6 +376,33 @@ fn buffer_previous(
     Ok(())
 }
 
+fn buffer_goto(
+    cx: &mut compositor::Context,
+    args: Args,
+    event: PromptEvent,
+) -> anyhow::Result<()> {
+    if event != PromptEvent::Validate {
+        return Ok(());
+    }
+
+    let id_str = args.first().context("buffer ID required")?;
+
+    // Find the document whose ID matches the given string
+    let doc_id = cx
+        .editor
+        .documents
+        .keys()
+        .find(|id| id.to_string() == *id_str)
+        .copied();
+
+    if let Some(doc_id) = doc_id {
+        cx.editor.switch(doc_id, Action::Replace);
+        Ok(())
+    } else {
+        bail!("buffer {} does not exist", id_str)
+    }
+}
+
 fn write_impl(
     cx: &mut compositor::Context,
     path: Option<&str>,
@@ -2934,6 +2961,17 @@ pub const TYPABLE_COMMAND_LIST: &[TypableCommand] = &[
         completer: CommandCompleter::none(),
         signature: Signature {
             positionals: (0, Some(0)),
+            ..Signature::DEFAULT
+        },
+    },
+    TypableCommand {
+        name: "buffer",
+        aliases: &["b"],
+        doc: "Goto buffer by ID.",
+        fun: buffer_goto,
+        completer: CommandCompleter::none(),
+        signature: Signature {
+            positionals: (1, Some(1)),
             ..Signature::DEFAULT
         },
     },
