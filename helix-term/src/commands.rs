@@ -47,7 +47,7 @@ use helix_core::{
 };
 use helix_view::{
     document::{FormatterError, Mode, SCRATCH_BUFFER_NAME},
-    editor::Action,
+    editor::{Action, ConfigEvent, InlineBlameShow},
     expansion,
     info::Info,
     input::KeyEvent,
@@ -617,6 +617,7 @@ impl MappableCommand {
         goto_prev_tabstop, "Goto next snippet placeholder",
         blame_line, "Show blame for the current line",
         blame_picker, "Open blame picker for all lines",
+        toggle_inline_blame, "Toggle inline blame visibility",
         rotate_selections_first, "Make the first selection your primary one",
         rotate_selections_last, "Make the last selection your primary one",
     );
@@ -3669,6 +3670,28 @@ fn blame_picker(cx: &mut Context) {
     });
 
     cx.push_layer(Box::new(overlaid(picker)));
+}
+
+fn toggle_inline_blame(cx: &mut Context) {
+    let mut config = cx.editor.config().clone();
+    let new_show = match config.inline_blame.show {
+        InlineBlameShow::Never => InlineBlameShow::CursorLine,
+        InlineBlameShow::CursorLine | InlineBlameShow::AllLines => InlineBlameShow::Never,
+    };
+    config.inline_blame.show = new_show;
+
+    let status = match new_show {
+        InlineBlameShow::Never => "Inline blame disabled",
+        InlineBlameShow::CursorLine => "Inline blame enabled (cursor line)",
+        InlineBlameShow::AllLines => "Inline blame enabled (all lines)",
+    };
+
+    let _ = cx
+        .editor
+        .config_events
+        .0
+        .send(ConfigEvent::Update(Box::new(config)));
+    cx.editor.set_status(status);
 }
 
 // `A` inserts at the end of each line with a selection.

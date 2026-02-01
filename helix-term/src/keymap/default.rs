@@ -237,6 +237,7 @@ pub fn default() -> HashMap<Mode, KeyTrie> {
                 "g" => changed_file_picker,
                 "b" => blame_picker,
                 "B" => blame_line,
+                "i" => toggle_inline_blame,
             },
             "a" => code_action,
             "'" => last_picker,
