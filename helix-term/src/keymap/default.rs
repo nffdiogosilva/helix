@@ -240,6 +240,7 @@ pub fn default() -> HashMap<Mode, KeyTrie> {
                 "9" => goto_buffer_9,
             },
             "j" => jumplist_picker,
+            "o" => recent_files_picker,
             "s" => lsp_or_syntax_symbol_picker,
             "S" => lsp_or_syntax_workspace_symbol_picker,
             "d" => diagnostics_picker,

@@ -1321,6 +1321,10 @@ impl Application {
         //        errors along the way
         let mut errs = Vec::new();
 
+        self.editor
+            .recent_files
+            .save(&helix_view::recent_files::recent_files_path());
+
         if let Err(err) = self
             .jobs
             .finish(&mut self.editor, Some(&mut self.compositor))

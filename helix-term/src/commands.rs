@@ -419,6 +419,7 @@ impl MappableCommand {
         goto_buffer_8, "Goto buffer 8",
         goto_buffer_9, "Goto buffer 9",
         jumplist_picker, "Open jumplist picker",
+        recent_files_picker, "Open recent files picker",
         symbol_picker, "Open symbol picker",
         syntax_symbol_picker, "Open symbol picker from syntax information",
         lsp_or_syntax_symbol_picker, "Open symbol picker from LSP or syntax information",
@@ -3390,6 +3391,32 @@ fn jumplist_picker(cx: &mut Context) {
         let line = meta.selection.primary().cursor_line(doc.text().slice(..));
         Some((meta.id.into(), Some((line, line))))
     });
+    cx.push_layer(Box::new(overlaid(picker)));
+}
+
+fn recent_files_picker(cx: &mut Context) {
+    let items: Vec<PathBuf> = cx
+        .editor
+        .recent_files
+        .iter()
+        .map(|entry| entry.path.clone())
+        .filter(|path| path.exists())
+        .collect();
+
+    let columns = [ui::PickerColumn::new("path", |path: &PathBuf, _| {
+        helix_stdx::path::get_relative_path(path)
+            .to_string_lossy()
+            .into_owned()
+            .into()
+    })];
+
+    let picker = Picker::new(columns, 0, items, (), |cx, path, action| {
+        if let Err(e) = cx.editor.open(path, action) {
+            let err = format!("Failed to open file: {}", e);
+            cx.editor.set_error(err);
+        }
+    })
+    .with_preview(|_editor, path| Some((path.as_path().into(), None)));
     cx.push_layer(Box::new(overlaid(picker)));
 }
 

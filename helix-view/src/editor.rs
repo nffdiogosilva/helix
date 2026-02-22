@@ -9,6 +9,7 @@ use crate::{
     handlers::Handlers,
     info::Info,
     input::KeyEvent,
+    recent_files::{self, RecentFiles},
     register::Registers,
     theme::{self, Theme},
     tree::{self, Tree},
@@ -1239,6 +1240,7 @@ pub struct Editor {
     pub count: Option<std::num::NonZeroUsize>,
     pub selected_register: Option<char>,
     pub registers: Registers,
+    pub recent_files: RecentFiles,
     pub macro_recording: Option<(char, Vec<KeyEvent>)>,
     pub macro_replaying: Vec<char>,
     pub language_servers: helix_lsp::Registry,
@@ -1400,6 +1402,7 @@ impl Editor {
                 Arc::clone(&config),
                 |config: &Config| &config.clipboard_provider,
             ))),
+            recent_files: RecentFiles::load(&recent_files::recent_files_path()),
             status_msg: None,
             autoinfo: None,
             idle_timer: Box::pin(sleep(conf.idle_timeout)),
@@ -1983,6 +1986,7 @@ impl Editor {
             id
         };
 
+        self.recent_files.push(path);
         self.switch(id, action);
 
         Ok(id)
