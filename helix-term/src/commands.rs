@@ -409,6 +409,15 @@ impl MappableCommand {
         file_explorer_in_current_directory, "Open file explorer at current working directory",
         code_action, "Perform code action",
         buffer_picker, "Open buffer picker",
+        goto_buffer_1, "Goto buffer 1",
+        goto_buffer_2, "Goto buffer 2",
+        goto_buffer_3, "Goto buffer 3",
+        goto_buffer_4, "Goto buffer 4",
+        goto_buffer_5, "Goto buffer 5",
+        goto_buffer_6, "Goto buffer 6",
+        goto_buffer_7, "Goto buffer 7",
+        goto_buffer_8, "Goto buffer 8",
+        goto_buffer_9, "Goto buffer 9",
         jumplist_picker, "Open jumplist picker",
         symbol_picker, "Open symbol picker",
         syntax_symbol_picker, "Open symbol picker from syntax information",
@@ -920,6 +929,48 @@ fn goto_next_buffer(cx: &mut Context) {
 
 fn goto_previous_buffer(cx: &mut Context) {
     goto_buffer(cx.editor, Direction::Backward, cx.count());
+}
+
+fn goto_buffer_by_id(editor: &mut Editor, id_str: &str) {
+    let doc_id = editor
+        .documents
+        .keys()
+        .find(|id| id.to_string() == id_str)
+        .copied();
+
+    if let Some(doc_id) = doc_id {
+        editor.switch(doc_id, Action::Replace);
+    } else {
+        editor.set_error(format!("buffer {} does not exist", id_str));
+    }
+}
+
+fn goto_buffer_1(cx: &mut Context) {
+    goto_buffer_by_id(cx.editor, "1");
+}
+fn goto_buffer_2(cx: &mut Context) {
+    goto_buffer_by_id(cx.editor, "2");
+}
+fn goto_buffer_3(cx: &mut Context) {
+    goto_buffer_by_id(cx.editor, "3");
+}
+fn goto_buffer_4(cx: &mut Context) {
+    goto_buffer_by_id(cx.editor, "4");
+}
+fn goto_buffer_5(cx: &mut Context) {
+    goto_buffer_by_id(cx.editor, "5");
+}
+fn goto_buffer_6(cx: &mut Context) {
+    goto_buffer_by_id(cx.editor, "6");
+}
+fn goto_buffer_7(cx: &mut Context) {
+    goto_buffer_by_id(cx.editor, "7");
+}
+fn goto_buffer_8(cx: &mut Context) {
+    goto_buffer_by_id(cx.editor, "8");
+}
+fn goto_buffer_9(cx: &mut Context) {
+    goto_buffer_by_id(cx.editor, "9");
 }
 
 fn goto_buffer(editor: &mut Editor, direction: Direction, count: usize) {
