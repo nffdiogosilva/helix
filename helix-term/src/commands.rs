@@ -11,6 +11,7 @@ use helix_stdx::{
     rope::{self, RopeSliceExt},
 };
 use helix_vcs::{FileChange, Hunk};
+use helix_view::document::LineBlameError;
 pub use lsp::*;
 pub use syntax::*;
 use tui::{
@@ -46,7 +47,7 @@ use helix_core::{
 };
 use helix_view::{
     document::{FormatterError, Mode, SCRATCH_BUFFER_NAME},
-    editor::Action,
+    editor::{Action, ConfigEvent, InlineBlameShow},
     expansion,
     info::Info,
     input::KeyEvent,
@@ -614,6 +615,9 @@ impl MappableCommand {
         extend_to_word, "Extend to a two-character label",
         goto_next_tabstop, "Goto next snippet placeholder",
         goto_prev_tabstop, "Goto next snippet placeholder",
+        blame_line, "Show blame for the current line",
+        blame_picker, "Open blame picker for all lines",
+        toggle_inline_blame, "Toggle inline blame visibility",
         rotate_selections_first, "Make the first selection your primary one",
         rotate_selections_last, "Make the last selection your primary one",
     );
@@ -3526,6 +3530,166 @@ enum IndentFallbackPos {
 // If the line is empty, automatically indent.
 fn insert_at_line_start(cx: &mut Context) {
     insert_with_indent(cx, IndentFallbackPos::LineStart);
+}
+
+pub(crate) fn blame_line_impl(editor: &mut Editor, doc_id: DocumentId, cursor_line: u32) {
+    let inline_blame_config = &editor.config().inline_blame;
+    let Some(doc) = editor.document(doc_id) else {
+        return;
+    };
+    let line_blame = match doc.line_blame(cursor_line, &inline_blame_config.format) {
+        result
+            if (result.is_ok() && doc.is_blame_potentially_out_of_date)
+                || matches!(result, Err(LineBlameError::NotReadyYet) if !inline_blame_config.auto_fetch) =>
+        {
+            if let Some(path) = doc.path() {
+                let tx = editor.handlers.blame.clone();
+                helix_event::send_blocking(
+                    &tx,
+                    helix_view::handlers::BlameEvent {
+                        path: path.to_path_buf(),
+                        doc_id: doc.id(),
+                        line: Some(cursor_line),
+                    },
+                );
+                editor.set_status(format!("Requested blame for {}...", path.display()));
+                let doc = editor
+                    .document_mut(doc_id)
+                    .expect("exists since we return from the function earlier if it does not");
+                doc.is_blame_potentially_out_of_date = false;
+            } else {
+                editor.set_error("Could not get path of document");
+            };
+            return;
+        }
+        Ok(line_blame) => line_blame,
+        Err(err @ (LineBlameError::NotCommittedYet | LineBlameError::NotReadyYet)) => {
+            editor.set_status(err.to_string());
+            return;
+        }
+        Err(err @ LineBlameError::NoFileBlame(_, _)) => {
+            editor.set_error(err.to_string());
+            return;
+        }
+    };
+
+    editor.set_status(line_blame);
+}
+
+fn blame_line(cx: &mut Context) {
+    let (view, doc) = current_ref!(cx.editor);
+    blame_line_impl(cx.editor, doc.id(), doc.cursor_line(view.id) as u32);
+}
+
+fn blame_picker(cx: &mut Context) {
+    struct BlameMeta {
+        line: u32,
+        commit: String,
+        author: String,
+        date: String,
+        title: String,
+        text: String,
+    }
+
+    let (view, doc) = current_ref!(cx.editor);
+    let doc_id = doc.id();
+    let text = doc.text().clone();
+    let current_line = doc.cursor_line(view.id) as u32;
+
+    let file_blame = match &doc.file_blame {
+        Some(Ok(blame)) => blame,
+        Some(Err(err)) => {
+            cx.editor.set_error(format!("Blame error: {}", err));
+            return;
+        }
+        None => {
+            cx.editor.set_status("Blame not ready yet. Try again in a moment.");
+            return;
+        }
+    };
+
+    let line_count = text.len_lines();
+    let items: Vec<BlameMeta> = (0..line_count as u32)
+        .map(|line| {
+            let mut line_blame = file_blame.blame_for_line(line, 0, 0);
+            let line_text = text
+                .get_line(line as usize)
+                .map(|l| l.to_string())
+                .unwrap_or_default()
+                .trim_end()
+                .chars()
+                .take(50)
+                .collect::<String>();
+
+            BlameMeta {
+                line: line + 1,
+                commit: line_blame.commit_hash().unwrap_or("-").to_string(),
+                author: line_blame.author_name().unwrap_or("-").to_string(),
+                date: line_blame.time_ago().unwrap_or_else(|| "-".to_string()),
+                title: line_blame
+                    .commit_title()
+                    .unwrap_or("-")
+                    .chars()
+                    .take(40)
+                    .collect(),
+                text: line_text,
+            }
+        })
+        .collect();
+
+    let columns = [
+        PickerColumn::new("line", |meta: &BlameMeta, _| format!("{:>5}", meta.line).into()),
+        PickerColumn::new("commit", |meta: &BlameMeta, _| meta.commit.as_str().into()),
+        PickerColumn::new("author", |meta: &BlameMeta, _| meta.author.as_str().into()),
+        PickerColumn::new("date", |meta: &BlameMeta, _| meta.date.as_str().into()),
+        PickerColumn::new("title", |meta: &BlameMeta, _| meta.title.as_str().into()),
+        PickerColumn::new("text", |meta: &BlameMeta, _| meta.text.as_str().into()),
+    ];
+
+    let initial_cursor = current_line.saturating_sub(1) as usize;
+
+    let picker = Picker::new(columns, 4, items, (), move |cx, meta, action| {
+        let line = meta.line.saturating_sub(1) as usize;
+        let doc = doc_mut!(cx.editor, &doc_id);
+        let text = doc.text().slice(..);
+        let pos = text.line_to_char(line.min(text.len_lines().saturating_sub(1)));
+        let view_id = view!(cx.editor).id;
+        doc.set_selection(view_id, Selection::point(pos));
+        if let Action::Replace = action {
+            let scrolloff = cx.editor.config().scrolloff;
+            let (view, doc) = current!(cx.editor);
+            view.ensure_cursor_in_view_center(doc, scrolloff);
+        }
+    })
+    .with_initial_cursor(initial_cursor.min(line_count.saturating_sub(1)) as u32)
+    .with_preview(move |_editor, meta| {
+        let line = meta.line.saturating_sub(1) as usize;
+        Some((doc_id.into(), Some((line, line))))
+    });
+
+    cx.push_layer(Box::new(overlaid(picker)));
+}
+
+fn toggle_inline_blame(cx: &mut Context) {
+    let mut config = cx.editor.config().clone();
+    let new_show = match config.inline_blame.show {
+        InlineBlameShow::Never => InlineBlameShow::CursorLine,
+        InlineBlameShow::CursorLine | InlineBlameShow::AllLines => InlineBlameShow::Never,
+    };
+    config.inline_blame.show = new_show;
+
+    let status = match new_show {
+        InlineBlameShow::Never => "Inline blame disabled",
+        InlineBlameShow::CursorLine => "Inline blame enabled (cursor line)",
+        InlineBlameShow::AllLines => "Inline blame enabled (all lines)",
+    };
+
+    let _ = cx
+        .editor
+        .config_events
+        .0
+        .send(ConfigEvent::Update(Box::new(config)));
+    cx.editor.set_status(status);
 }
 
 // `A` inserts at the end of each line with a selection.
