@@ -166,6 +166,7 @@
 <li><a href="#editorclipboard-provider-section"><code>[editor.clipboard-provider]</code> Section</a></li>
 <li><a href="#editorstatusline-section"><code>[editor.statusline]</code> Section</a></li>
 <li><a href="#editorlsp-section"><code>[editor.lsp]</code> Section</a></li>
+<li><a href="#editorinlineblame-section"><code>[editor.inline-blame]</code> Section</a></li>
 <li><a href="#editorcursor-shape-section"><code>[editor.cursor-shape]</code> Section</a></li>
 <li><a href="#editorfile-picker-section"><code>[editor.file-picker]</code> Section</a></li>
 <li><a href="#editorfile-explorer-section"><code>[editor.file-explorer]</code> Section</a></li>
@@ -326,6 +327,34 @@ workspace-diagnostics = ["warning", "error"]
 <div class="footnote-definition" id="2"><sup class="footnote-definition-label">3</sup>
 <p>You may also have to activate them in the language server config for them to appear, not just in Helix. Inlay hints in Helix are still being improved on and may be a little bit laggy/janky under some circumstances. Please report any bugs you see so we can fix them!</p>
 </div>
+<h3 id="editorinline-blame-section"><a class="header" href="#editorinline-blame-section"><code>[editor.inline-blame]</code> Section</a></h3>
+<p>Inline blame is virtual text that appears at the end of a line, displaying information about the most recent commit that affected this line.</p>
+<div class="table-wrapper"><table><thead><tr><th>Key</th><th>Description</th><th>Default</th></tr></thead><tbody>
+<tr><td><code>show</code></td><td>When to show inline blame</td><td><code>"never"</code></td></tr>
+<tr><td><code>auto-fetch</code></td><td>Automatically fetch blame information in the background</td><td><code>false</code></td></tr>
+<tr><td><code>format</code></td><td>Inline blame message format</td><td><code>"{author}, {time-ago} • {title} • {commit}"</code></td></tr>
+</tbody></table>
+</div>
+<p><code>show</code> can be one of the following:</p>
+<ul>
+<li><code>"all-lines"</code>: Inline blame is on every line.</li>
+<li><code>"cursor-line"</code>: Inline blame is only on the line of the primary cursor.</li>
+<li><code>"hidden"</code>: Inline blame is hidden.</li>
+</ul>
+<p>With <code>auto-fetch</code> set to <code>false</code>, blame for the current file is fetched only when explicitly requested, such as when using <code>space + B</code> to display the blame for the line of the cursor. There may be a little delay when loading the blame.</p>
+<p>When <code>auto-fetch</code> is set to <code>true</code>, blame for the file is fetched in the background; this will have no effect on performance, but will use a little bit extra resources in the background. Directly requesting the blame with <code>space + B</code> will be instant. Inline blame will show as soon as the blame is available when loading new files.</p>
+<p>When opening new files, even with <code>show</code> set to <code>"all-lines"</code> or <code>"cursor-line"</code>, the inline blame won't show. It needs to be fetched first in order to become available, which can be triggered manually with <code>space + B</code>.</p>
+<h4 id="format"><a class="header" href="#format"><code>format</code></a></h4>
+<p>Change the <code>format</code> string to customize the blame message displayed. Variables are text placeholders wrapped in curly braces: <code>{variable}</code>. The following variables are available:</p>
+<ul>
+<li><code>author</code>: The author of the commit</li>
+<li><code>date</code>: When the commit was made</li>
+<li><code>time-ago</code>: How long ago the commit was made</li>
+<li><code>title</code>: The title of the commit</li>
+<li><code>body</code>: The body of the commit</li>
+<li><code>commit</code>: The short hex SHA1 hash of the commit</li>
+<li><code>email</code>: The email of the author of the commit</li>
+</ul>
 <h3 id="editorcursor-shape-section"><a class="header" href="#editorcursor-shape-section"><code>[editor.cursor-shape]</code> Section</a></h3>
 <p>Defines the shape of cursor in each mode.
 Valid values for these options are <code>block</code>, <code>bar</code>, <code>underline</code>, or <code>hidden</code>.</p>

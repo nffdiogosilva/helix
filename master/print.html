@@ -202,6 +202,7 @@ To set up Helix:</p>
 <li><a href="package-managers.html#flatpak">Flatpak</a></li>
 <li><a href="package-managers.html#snap">Snap</a></li>
 <li><a href="package-managers.html#appimage">AppImage</a></li>
+<li><a href="package-managers.html#linux-homebrew-core">Linux Homebrew Core</a></li>
 </ul>
 </li>
 <li><a href="package-managers.html#macos">macOS</a>
@@ -279,9 +280,15 @@ Download the official Helix AppImage from the <a href="https://github.com/helix-
 mv helix-*.AppImage "$HOME/.local/bin/hx"
 </code></pre>
 <p>and make sure <code>~/.local/bin</code> is in your <code>PATH</code>.</p>
+<h3 id="linux-homebrew-core"><a class="header" href="#linux-homebrew-core">Linux Homebrew Core</a></h3>
+<p>Checkout the <a href="package-managers.html#homebrew-core">macOS</a> instructions below.</p>
 <h2 id="macos"><a class="header" href="#macos">macOS</a></h2>
 <h3 id="homebrew-core"><a class="header" href="#homebrew-core">Homebrew Core</a></h3>
+<p>Install the latest release:</p>
 <pre><code class="language-sh">brew install helix
+</code></pre>
+<p>Or, install the latest nightly version:</p>
+<pre><code class="language-sh">brew install --HEAD helix
 </code></pre>
 <h3 id="macports"><a class="header" href="#macports">MacPorts</a></h3>
 <pre><code class="language-sh">sudo port install helix
@@ -1014,6 +1021,7 @@ useful when you're simply looking over text and not actively editing it.</p>
 <tr><td><code>R</code></td><td>Replace selections by clipboard contents</td><td><code>replace_selections_with_clipboard</code></td></tr>
 <tr><td><code>/</code></td><td>Global search in workspace folder</td><td><code>global_search</code></td></tr>
 <tr><td><code>?</code></td><td>Open command palette</td><td><code>command_palette</code></td></tr>
+<tr><td><code>B</code></td><td>Show blame for the current line</td><td><code>blame_line</code></td></tr>
 </tbody></table>
 </div>
 <blockquote>
@@ -1335,8 +1343,10 @@ space.B = ":echo %sh{git blame -L %{cursor_line},+1 %{buffer_name}}"
 <tr><td><code>:run-shell-command</code>, <code>:sh</code>, <code>:!</code></td><td>Run a shell command</td></tr>
 <tr><td><code>:reset-diff-change</code>, <code>:diffget</code>, <code>:diffg</code></td><td>Reset the diff change at the cursor position.</td></tr>
 <tr><td><code>:clear-register</code></td><td>Clear given register. If no argument is provided, clear all registers.</td></tr>
+<tr><td><code>:set-register</code></td><td>Set contents of the given register.</td></tr>
 <tr><td><code>:redraw</code></td><td>Clear and re-render the whole UI</td></tr>
 <tr><td><code>:move</code>, <code>:mv</code></td><td>Move the current buffer and its corresponding file to a different path</td></tr>
+<tr><td><code>:move!</code>, <code>:mv!</code></td><td>Move the current buffer and its corresponding file to a different path creating necessary subdirectories</td></tr>
 <tr><td><code>:yank-diagnostic</code></td><td>Yank diagnostic(s) under primary cursor to register, or clipboard by default</td></tr>
 <tr><td><code>:read</code>, <code>:r</code></td><td>Load a file into buffer</td></tr>
 <tr><td><code>:echo</code></td><td>Prints the given arguments to the statusline.</td></tr>
@@ -1559,6 +1569,11 @@ space.B = ":echo %sh{git blame -L %{cursor_line},+1 %{buffer_name}}"
 <tr><td><code>keep_primary_selection</code></td><td>Keep primary selection</td><td>normal: <code>,</code>, select: <code>,</code></td></tr>
 <tr><td><code>remove_primary_selection</code></td><td>Remove primary selection</td><td>normal: <code>&lt;A-,&gt;</code>, select: <code>&lt;A-,&gt;</code></td></tr>
 <tr><td><code>completion</code></td><td>Invoke completion popup</td><td>insert: <code>&lt;C-x&gt;</code></td></tr>
+<tr><td><code>inline_completion_accept</code></td><td>Accept inline completion</td><td></td></tr>
+<tr><td><code>inline_completion_dismiss</code></td><td>Dismiss inline completion</td><td></td></tr>
+<tr><td><code>inline_completion_next</code></td><td>Cycle to next inline completion</td><td></td></tr>
+<tr><td><code>inline_completion_prev</code></td><td>Cycle to previous inline completion</td><td></td></tr>
+<tr><td><code>inline_completion_trigger</code></td><td>Trigger inline completion</td><td></td></tr>
 <tr><td><code>hover</code></td><td>Show docs for item under cursor</td><td>normal: <code>&lt;space&gt;k</code>, select: <code>&lt;space&gt;k</code></td></tr>
 <tr><td><code>toggle_comments</code></td><td>Comment/uncomment selections</td><td>normal: <code>&lt;C-c&gt;</code>, <code>&lt;space&gt;c</code>, select: <code>&lt;C-c&gt;</code>, <code>&lt;space&gt;c</code></td></tr>
 <tr><td><code>toggle_line_comments</code></td><td>Line comment/uncomment selections</td><td>normal: <code>&lt;space&gt;&lt;A-c&gt;</code>, select: <code>&lt;space&gt;&lt;A-c&gt;</code></td></tr>
@@ -1657,6 +1672,7 @@ space.B = ":echo %sh{git blame -L %{cursor_line},+1 %{buffer_name}}"
 <tr><td><code>extend_to_word</code></td><td>Extend to a two-character label</td><td>select: <code>gw</code></td></tr>
 <tr><td><code>goto_next_tabstop</code></td><td>Goto next snippet placeholder</td><td></td></tr>
 <tr><td><code>goto_prev_tabstop</code></td><td>Goto next snippet placeholder</td><td></td></tr>
+<tr><td><code>blame_line</code></td><td>Show blame for the current line</td><td>normal: <code>&lt;space&gt;B</code>, select: <code>&lt;space&gt;B</code></td></tr>
 <tr><td><code>rotate_selections_first</code></td><td>Make the first selection your primary one</td><td></td></tr>
 <tr><td><code>rotate_selections_last</code></td><td>Make the last selection your primary one</td><td></td></tr>
 </tbody></table>
@@ -1686,7 +1702,7 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>blueprint</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>blueprint-compiler</code></td></tr>
 <tr><td>bovex</td><td>✓</td><td></td><td></td><td></td><td>✓</td><td></td></tr>
 <tr><td>c</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td><code>clangd</code></td></tr>
-<tr><td>c-sharp</td><td>✓</td><td>✓</td><td></td><td>✓</td><td></td><td><code>OmniSharp</code>, <code>csharp-ls</code></td></tr>
+<tr><td>c-sharp</td><td>✓</td><td>✓</td><td></td><td>✓</td><td></td><td><code>roslyn-language-server</code>, <code>OmniSharp</code>, <code>csharp-ls</code></td></tr>
 <tr><td>c3</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>c3-lsp</code></td></tr>
 <tr><td>cabal</td><td></td><td></td><td></td><td></td><td></td><td><code>haskell-language-server-wrapper</code></td></tr>
 <tr><td>caddyfile</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td><td></td></tr>
@@ -1756,7 +1772,7 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>git-attributes</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>git-cliff-config</td><td>✓</td><td>✓</td><td></td><td></td><td>✓</td><td><code>taplo</code>, <code>tombi</code></td></tr>
 <tr><td>git-commit</td><td>✓</td><td>✓</td><td></td><td></td><td></td><td><code>commit-lsp</code></td></tr>
-<tr><td>git-config</td><td>✓</td><td>✓</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>git-config</td><td>✓</td><td>✓</td><td></td><td>✓</td><td></td><td></td></tr>
 <tr><td>git-ignore</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>git-notes</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>git-rebase</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
@@ -1767,6 +1783,7 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>glimmer</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>ember-language-server</code></td></tr>
 <tr><td>glsl</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td><td><code>glsl_analyzer</code>, <code>glsld</code></td></tr>
 <tr><td>gn</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>gnuplot</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>go</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td><code>gopls</code>, <code>golangci-lint-langserver</code></td></tr>
 <tr><td>go-format-string</td><td>✓</td><td></td><td></td><td></td><td>✓</td><td></td></tr>
 <tr><td>godot-resource</td><td>✓</td><td>✓</td><td></td><td></td><td></td><td></td></tr>
@@ -1794,10 +1811,10 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>htmldjango</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>djlsp</code>, <code>vscode-html-language-server</code>, <code>superhtml</code></td></tr>
 <tr><td>hurl</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td><td></td></tr>
 <tr><td>hy</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>hyuga</code></td></tr>
-<tr><td>hyprlang</td><td>✓</td><td></td><td>✓</td><td></td><td></td><td><code>hyprls</code></td></tr>
+<tr><td>hyprlang</td><td>✓</td><td></td><td>✓</td><td>✓</td><td></td><td><code>hyprls</code></td></tr>
 <tr><td>idris</td><td></td><td></td><td></td><td></td><td></td><td><code>idris2-lsp</code></td></tr>
 <tr><td>iex</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td>ini</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>ini</td><td>✓</td><td></td><td></td><td>✓</td><td></td><td></td></tr>
 <tr><td>ink</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>inko</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td></tr>
 <tr><td>janet</td><td>✓</td><td></td><td>✓</td><td></td><td>✓</td><td></td></tr>
@@ -1811,9 +1828,9 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>jq</td><td>✓</td><td>✓</td><td></td><td></td><td></td><td><code>jq-lsp</code></td></tr>
 <tr><td>jsdoc</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>json</td><td>✓</td><td>✓</td><td>✓</td><td></td><td>✓</td><td><code>vscode-json-language-server</code></td></tr>
-<tr><td>json-ld</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td><td><code>vscode-json-language-server</code></td></tr>
-<tr><td>json5</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td>jsonc</td><td>✓</td><td></td><td>✓</td><td></td><td>✓</td><td><code>vscode-json-language-server</code></td></tr>
+<tr><td>json-ld</td><td>✓</td><td>✓</td><td>✓</td><td></td><td>✓</td><td><code>vscode-json-language-server</code></td></tr>
+<tr><td>json5</td><td>✓</td><td>✓</td><td>✓</td><td></td><td>✓</td><td></td></tr>
+<tr><td>jsonc</td><td>✓</td><td>✓</td><td>✓</td><td></td><td>✓</td><td><code>vscode-json-language-server</code></td></tr>
 <tr><td>jsonnet</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>jsonnet-language-server</code></td></tr>
 <tr><td>jsx</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td><code>typescript-language-server</code></td></tr>
 <tr><td>julia</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td><td><code>julia</code></td></tr>
@@ -1941,7 +1958,7 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>svelte</td><td>✓</td><td></td><td>✓</td><td></td><td></td><td><code>svelteserver</code></td></tr>
 <tr><td>sway</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td><td><code>forc</code></td></tr>
 <tr><td>swift</td><td>✓</td><td>✓</td><td>✓</td><td></td><td>✓</td><td><code>sourcekit-lsp</code></td></tr>
-<tr><td>systemd</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>systemd-lsp</code></td></tr>
+<tr><td>systemd</td><td>✓</td><td></td><td></td><td>✓</td><td></td><td><code>systemd-lsp</code></td></tr>
 <tr><td>systemverilog</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>svlangserver</code>, <code>verible-verilog-ls</code></td></tr>
 <tr><td>t32</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>tablegen</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td><td></td></tr>
@@ -1954,9 +1971,10 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>textproto</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td><td></td></tr>
 <tr><td>tfvars</td><td>✓</td><td></td><td>✓</td><td></td><td></td><td><code>terraform-ls</code></td></tr>
 <tr><td>thrift</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>tilt</td><td>✓</td><td>✓</td><td>✓</td><td></td><td>✓</td><td><code>tilt</code></td></tr>
 <tr><td>tlaplus</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>todotxt</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td>toml</td><td>✓</td><td>✓</td><td></td><td></td><td>✓</td><td><code>taplo</code>, <code>tombi</code></td></tr>
+<tr><td>toml</td><td>✓</td><td>✓</td><td></td><td>✓</td><td>✓</td><td><code>taplo</code>, <code>tombi</code></td></tr>
 <tr><td>tsq</td><td>✓</td><td></td><td></td><td></td><td>✓</td><td><code>ts_query_ls</code></td></tr>
 <tr><td>tsx</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td><code>typescript-language-server</code></td></tr>
 <tr><td>twig</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
@@ -2204,6 +2222,7 @@ Its settings will be merged with the configuration directory and the built-in co
 <li><a href="editor.html#editorclipboard-provider-section"><code>[editor.clipboard-provider]</code> Section</a></li>
 <li><a href="editor.html#editorstatusline-section"><code>[editor.statusline]</code> Section</a></li>
 <li><a href="editor.html#editorlsp-section"><code>[editor.lsp]</code> Section</a></li>
+<li><a href="editor.html#editorinlineblame-section"><code>[editor.inline-blame]</code> Section</a></li>
 <li><a href="editor.html#editorcursor-shape-section"><code>[editor.cursor-shape]</code> Section</a></li>
 <li><a href="editor.html#editorfile-picker-section"><code>[editor.file-picker]</code> Section</a></li>
 <li><a href="editor.html#editorfile-explorer-section"><code>[editor.file-explorer]</code> Section</a></li>
@@ -2364,6 +2383,34 @@ workspace-diagnostics = ["warning", "error"]
 <div class="footnote-definition" id="2"><sup class="footnote-definition-label">3</sup>
 <p>You may also have to activate them in the language server config for them to appear, not just in Helix. Inlay hints in Helix are still being improved on and may be a little bit laggy/janky under some circumstances. Please report any bugs you see so we can fix them!</p>
 </div>
+<h3 id="editorinline-blame-section"><a class="header" href="#editorinline-blame-section"><code>[editor.inline-blame]</code> Section</a></h3>
+<p>Inline blame is virtual text that appears at the end of a line, displaying information about the most recent commit that affected this line.</p>
+<div class="table-wrapper"><table><thead><tr><th>Key</th><th>Description</th><th>Default</th></tr></thead><tbody>
+<tr><td><code>show</code></td><td>When to show inline blame</td><td><code>"never"</code></td></tr>
+<tr><td><code>auto-fetch</code></td><td>Automatically fetch blame information in the background</td><td><code>false</code></td></tr>
+<tr><td><code>format</code></td><td>Inline blame message format</td><td><code>"{author}, {time-ago} • {title} • {commit}"</code></td></tr>
+</tbody></table>
+</div>
+<p><code>show</code> can be one of the following:</p>
+<ul>
+<li><code>"all-lines"</code>: Inline blame is on every line.</li>
+<li><code>"cursor-line"</code>: Inline blame is only on the line of the primary cursor.</li>
+<li><code>"hidden"</code>: Inline blame is hidden.</li>
+</ul>
+<p>With <code>auto-fetch</code> set to <code>false</code>, blame for the current file is fetched only when explicitly requested, such as when using <code>space + B</code> to display the blame for the line of the cursor. There may be a little delay when loading the blame.</p>
+<p>When <code>auto-fetch</code> is set to <code>true</code>, blame for the file is fetched in the background; this will have no effect on performance, but will use a little bit extra resources in the background. Directly requesting the blame with <code>space + B</code> will be instant. Inline blame will show as soon as the blame is available when loading new files.</p>
+<p>When opening new files, even with <code>show</code> set to <code>"all-lines"</code> or <code>"cursor-line"</code>, the inline blame won't show. It needs to be fetched first in order to become available, which can be triggered manually with <code>space + B</code>.</p>
+<h4 id="format"><a class="header" href="#format"><code>format</code></a></h4>
+<p>Change the <code>format</code> string to customize the blame message displayed. Variables are text placeholders wrapped in curly braces: <code>{variable}</code>. The following variables are available:</p>
+<ul>
+<li><code>author</code>: The author of the commit</li>
+<li><code>date</code>: When the commit was made</li>
+<li><code>time-ago</code>: How long ago the commit was made</li>
+<li><code>title</code>: The title of the commit</li>
+<li><code>body</code>: The body of the commit</li>
+<li><code>commit</code>: The short hex SHA1 hash of the commit</li>
+<li><code>email</code>: The email of the author of the commit</li>
+</ul>
 <h3 id="editorcursor-shape-section"><a class="header" href="#editorcursor-shape-section"><code>[editor.cursor-shape]</code> Section</a></h3>
 <p>Defines the shape of cursor in each mode.
 Valid values for these options are <code>block</code>, <code>bar</code>, <code>underline</code>, or <code>hidden</code>.</p>
@@ -2892,7 +2939,8 @@ The key is a list of styles.</p>
 <p><code>namespace</code></p>
 </li>
 <li>
-<p><code>special</code> - <code>derive</code> in Rust, etc.</p>
+<p><code>special</code> - <code>derive</code> in Rust, bolded query-match in pickers (includes file explorer), etc.
+See also <a href="https://github.com/helix-editor/helix/issues/2380">#2380</a></p>
 </li>
 <li>
 <p><code>markup</code></p>
@@ -3022,6 +3070,7 @@ The key is a list of styles.</p>
 <tr><td><code>ui.text.inactive</code></td><td>Same as <code>ui.text</code> but when the text is inactive (e.g. suggestions)</td></tr>
 <tr><td><code>ui.text.info</code></td><td>The key: command text in <code>ui.popup.info</code> boxes</td></tr>
 <tr><td><code>ui.text.directory</code></td><td>Directory names in prompt completion</td></tr>
+<tr><td><code>ui.text.symlink</code></td><td>Symlink names in prompt completion</td></tr>
 <tr><td><code>ui.virtual.ruler</code></td><td>Ruler columns (see the <a href="./configuration.html#editor-section"><code>editor.rulers</code> config</a>)</td></tr>
 <tr><td><code>ui.virtual.whitespace</code></td><td>Visible whitespace characters</td></tr>
 <tr><td><code>ui.virtual.indent-guide</code></td><td>Vertical indent width guides</td></tr>
@@ -3030,6 +3079,7 @@ The key is a list of styles.</p>
 <tr><td><code>ui.virtual.inlay-hint.type</code></td><td>Style for inlay hints of kind <code>type</code> (language servers are not required to set a kind)</td></tr>
 <tr><td><code>ui.virtual.wrap</code></td><td>Soft-wrap indicator (see the <a href="./configuration.html#editor-section"><code>editor.soft-wrap</code> config</a>)</td></tr>
 <tr><td><code>ui.virtual.jump-label</code></td><td>Style for virtual jump labels</td></tr>
+<tr><td><code>ui.virtual.inline-blame</code></td><td>Inline blame indicator (see the <a href="./configuration.html#editor-section"><code>editor.inline-blame</code> config</a>)</td></tr>
 <tr><td><code>ui.menu</code></td><td>Code and command completion menus</td></tr>
 <tr><td><code>ui.menu.selected</code></td><td>Selected autocomplete item</td></tr>
 <tr><td><code>ui.menu.scroll</code></td><td><code>fg</code> sets thumb color, <code>bg</code> sets track color of scrollbar</td></tr>
@@ -3887,6 +3937,7 @@ testing.</p>
 <tr><td><code>definition.interface</code></td></tr>
 <tr><td><code>definition.macro</code></td></tr>
 <tr><td><code>definition.module</code></td></tr>
+<tr><td><code>definition.section</code></td></tr>
 <tr><td><code>definition.struct</code></td></tr>
 <tr><td><code>definition.type</code></td></tr>
 </tbody></table>

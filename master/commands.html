@@ -254,8 +254,10 @@
 <tr><td><code>:run-shell-command</code>, <code>:sh</code>, <code>:!</code></td><td>Run a shell command</td></tr>
 <tr><td><code>:reset-diff-change</code>, <code>:diffget</code>, <code>:diffg</code></td><td>Reset the diff change at the cursor position.</td></tr>
 <tr><td><code>:clear-register</code></td><td>Clear given register. If no argument is provided, clear all registers.</td></tr>
+<tr><td><code>:set-register</code></td><td>Set contents of the given register.</td></tr>
 <tr><td><code>:redraw</code></td><td>Clear and re-render the whole UI</td></tr>
 <tr><td><code>:move</code>, <code>:mv</code></td><td>Move the current buffer and its corresponding file to a different path</td></tr>
+<tr><td><code>:move!</code>, <code>:mv!</code></td><td>Move the current buffer and its corresponding file to a different path creating necessary subdirectories</td></tr>
 <tr><td><code>:yank-diagnostic</code></td><td>Yank diagnostic(s) under primary cursor to register, or clipboard by default</td></tr>
 <tr><td><code>:read</code>, <code>:r</code></td><td>Load a file into buffer</td></tr>
 <tr><td><code>:echo</code></td><td>Prints the given arguments to the statusline.</td></tr>
@@ -478,6 +480,11 @@
 <tr><td><code>keep_primary_selection</code></td><td>Keep primary selection</td><td>normal: <code>,</code>, select: <code>,</code></td></tr>
 <tr><td><code>remove_primary_selection</code></td><td>Remove primary selection</td><td>normal: <code>&lt;A-,&gt;</code>, select: <code>&lt;A-,&gt;</code></td></tr>
 <tr><td><code>completion</code></td><td>Invoke completion popup</td><td>insert: <code>&lt;C-x&gt;</code></td></tr>
+<tr><td><code>inline_completion_accept</code></td><td>Accept inline completion</td><td></td></tr>
+<tr><td><code>inline_completion_dismiss</code></td><td>Dismiss inline completion</td><td></td></tr>
+<tr><td><code>inline_completion_next</code></td><td>Cycle to next inline completion</td><td></td></tr>
+<tr><td><code>inline_completion_prev</code></td><td>Cycle to previous inline completion</td><td></td></tr>
+<tr><td><code>inline_completion_trigger</code></td><td>Trigger inline completion</td><td></td></tr>
 <tr><td><code>hover</code></td><td>Show docs for item under cursor</td><td>normal: <code>&lt;space&gt;k</code>, select: <code>&lt;space&gt;k</code></td></tr>
 <tr><td><code>toggle_comments</code></td><td>Comment/uncomment selections</td><td>normal: <code>&lt;C-c&gt;</code>, <code>&lt;space&gt;c</code>, select: <code>&lt;C-c&gt;</code>, <code>&lt;space&gt;c</code></td></tr>
 <tr><td><code>toggle_line_comments</code></td><td>Line comment/uncomment selections</td><td>normal: <code>&lt;space&gt;&lt;A-c&gt;</code>, select: <code>&lt;space&gt;&lt;A-c&gt;</code></td></tr>
@@ -576,6 +583,7 @@
 <tr><td><code>extend_to_word</code></td><td>Extend to a two-character label</td><td>select: <code>gw</code></td></tr>
 <tr><td><code>goto_next_tabstop</code></td><td>Goto next snippet placeholder</td><td></td></tr>
 <tr><td><code>goto_prev_tabstop</code></td><td>Goto next snippet placeholder</td><td></td></tr>
+<tr><td><code>blame_line</code></td><td>Show blame for the current line</td><td>normal: <code>&lt;space&gt;B</code>, select: <code>&lt;space&gt;B</code></td></tr>
 <tr><td><code>rotate_selections_first</code></td><td>Make the first selection your primary one</td><td></td></tr>
 <tr><td><code>rotate_selections_last</code></td><td>Make the last selection your primary one</td><td></td></tr>
 </tbody></table>
