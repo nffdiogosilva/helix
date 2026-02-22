@@ -2143,10 +2143,14 @@ impl Editor {
         self.focus(self.tree.prev());
     }
 
-    pub fn focus_direction(&mut self, direction: tree::Direction) {
+    /// Focus the view in the given direction. Returns `true` if focus changed.
+    pub fn focus_direction(&mut self, direction: tree::Direction) -> bool {
         let current_view = self.tree.focus;
         if let Some(id) = self.tree.find_split_in_direction(current_view, direction) {
-            self.focus(id)
+            self.focus(id);
+            true
+        } else {
+            false
         }
     }
 
